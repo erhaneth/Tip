@@ -18,9 +18,42 @@ class KeyboardViewController: UIInputViewController {
     enum KeyboardMode {
         case letters
         case numbers
+        case emojis
     }
     var currentMode: KeyboardMode = .letters
     var isUppercase: Bool = false
+    var currentEmojiCategory: Int = 0
+    var isShowingStickers: Bool = false
+    
+    // Recently used emojis (loaded from UserDefaults)
+    var recentEmojis: [String] = []
+    let maxRecentEmojis = 30
+    let recentEmojisKey = "RecentlyUsedEmojis"
+    
+    // Emoji UI Elements
+    var emojiContainerView: UIView?
+    var emojiCollectionView: UICollectionView?
+    var emojiCategoryBar: UIStackView?
+    
+    // Sticker names (image names in Assets - add your images with these names)
+    let stickerNames: [String] = [
+        "dan"  // Add your sticker image names here
+        // Examples: "saz", "def", "newroz", etc.
+    ]
+    
+    // Emoji Data organized by categories (index 0 is Recent - will be loaded dynamically)
+    let emojiCategories: [(icon: String, emojis: [String])] = [
+        ("🕐", []), // Recent - loaded dynamically from UserDefaults
+        ("😀", ["😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃", "😉", "😊", "😇", "🥰", "😍", "🤩", "😘", "😗", "☺️", "😚", "😙", "🥲", "😋", "😛", "😜", "🤪", "😝", "🤑", "🤗", "🤭", "🤫", "🤔", "🤐", "🤨", "😐", "😑", "😶", "😏", "😒", "🙄", "😬", "🤥", "😌", "😔", "😪", "🤤", "😴", "😷", "🤒", "🤕", "🤢", "🤮", "🤧", "🥵", "🥶", "🥴", "😵", "🤯", "🤠", "🥳", "🥸", "😎", "🤓", "🧐", "😕", "😟", "🙁", "☹️", "😮", "😯", "😲", "😳", "🥺", "😦", "😧", "😨", "😰", "😥", "😢", "😭", "😱", "😖", "😣", "😞", "😓", "😩", "😫", "🥱", "😤", "😡", "😠", "🤬", "😈", "👿", "💀", "☠️", "💩", "🤡", "👹", "👺", "👻", "👽", "👾", "🤖"]), // Smileys
+        ("🐻", ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐽", "🐸", "🐵", "🙈", "🙉", "🙊", "🐒", "🐔", "🐧", "🐦", "🐤", "🐣", "🐥", "🦆", "🦅", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🪱", "🐛", "🦋", "🐌", "🐞", "🐜", "🪰", "🪲", "🪳", "🦟", "🦗", "🕷️", "🕸️", "🦂", "🐢", "🐍", "🦎", "🦖", "🦕", "🐙", "🦑", "🦐", "🦞", "🦀", "🐡", "🐠", "🐟", "🐬", "🐳", "🐋", "🦈", "🐊", "🐅", "🐆", "🦓", "🦍", "🦧", "🦣", "🐘", "🦛", "🦏", "🐪", "🐫", "🦒", "🦘", "🦬", "🐃", "🐂", "🐄", "🐎", "🐖", "🐏", "🐑", "🦙", "🐐", "🦌", "🐕", "🐩", "🦮", "🐕‍🦺", "🐈", "🐈‍⬛", "🪶", "🐓", "🦃", "🦤", "🦚", "🦜", "🦢", "🦩", "🕊️", "🐇", "🦝", "🦨", "🦡", "🦫", "🦦", "🦥", "🐁", "🐀", "🐿️", "🦔"]), // Animals
+        ("🍔", ["🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🥬", "🥒", "🌶️", "🫑", "🌽", "🥕", "🫒", "🧄", "🧅", "🥔", "🍠", "🥐", "🥯", "🍞", "🥖", "🥨", "🧀", "🥚", "🍳", "🧈", "🥞", "🧇", "🥓", "🥩", "🍗", "🍖", "🦴", "🌭", "🍔", "🍟", "🍕", "🫓", "🥪", "🥙", "🧆", "🌮", "🌯", "🫔", "🥗", "🥘", "🫕", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🥧", "🧁", "🍰", "🎂", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜", "🍯", "🥛", "🍼", "🫖", "☕", "🍵", "🧃", "🥤", "🧋", "🍶", "🍺", "🍻", "🥂", "🍷", "🥃", "🍸", "🍹", "🧉", "🍾", "🧊"]), // Food
+        ("⚽", ["⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓", "🏸", "🏒", "🏑", "🥍", "🏏", "🪃", "🥅", "⛳", "🪁", "🏹", "🎣", "🤿", "🥊", "🥋", "🎽", "🛹", "🛼", "🛷", "⛸️", "🥌", "🎿", "⛷️", "🏂", "🪂", "🏋️", "🤼", "🤸", "🤺", "⛹️", "🤾", "🏌️", "🏇", "🧘", "🏄", "🏊", "🤽", "🚣", "🧗", "🚵", "🚴", "🏆", "🥇", "🥈", "🥉", "🏅", "🎖️", "🏵️", "🎗️", "🎫", "🎟️", "🎪", "🎭", "🎨", "🎬", "🎤", "🎧", "🎼", "🎹", "🥁", "🪘", "🎷", "🎺", "🪗", "🎸", "🪕", "🎻", "🎲", "♟️", "🎯", "🎳", "🎮", "🎰", "🧩"]), // Activities
+        ("🚗", ["🚗", "🚕", "🚙", "🚌", "🚎", "🏎️", "🚓", "🚑", "🚒", "🚐", "🛻", "🚚", "🚛", "🚜", "🦯", "🦽", "🦼", "🛴", "🚲", "🛵", "🏍️", "🛺", "🚨", "🚔", "🚍", "🚘", "🚖", "🚡", "🚠", "🚟", "🚃", "🚋", "🚞", "🚝", "🚄", "🚅", "🚈", "🚂", "🚆", "🚇", "🚊", "🚉", "✈️", "🛫", "🛬", "🛩️", "💺", "🛰️", "🚀", "🛸", "🚁", "🛶", "⛵", "🚤", "🛥️", "🛳️", "⛴️", "🚢", "⚓", "🪝", "⛽", "🚧", "🚦", "🚥", "🚏", "🗺️", "🗿", "🗽", "🗼", "🏰", "🏯", "🏟️", "🎡", "🎢", "🎠", "⛲", "⛱️", "🏖️", "🏝️", "🏜️", "🌋", "⛰️", "🏔️", "🗻", "🏕️", "⛺", "🛖", "🏠", "🏡", "🏘️", "🏚️", "🏗️", "🏭", "🏢", "🏬", "🏣", "🏤", "🏥", "🏦", "🏨", "🏪", "🏫", "🏩", "💒", "🏛️", "⛪", "🕌", "🕍", "🛕", "🕋", "⛩️", "🛤️", "🛣️", "🗾", "🎑", "🏞️", "🌅", "🌄", "🌠", "🎇", "🎆", "🌇", "🌆", "🏙️", "🌃", "🌌", "🌉", "🌁"]), // Travel
+        ("💡", ["⌚", "📱", "📲", "💻", "⌨️", "🖥️", "🖨️", "🖱️", "🖲️", "🕹️", "🗜️", "💽", "💾", "💿", "📀", "📼", "📷", "📸", "📹", "🎥", "📽️", "🎞️", "📞", "☎️", "📟", "📠", "📺", "📻", "🎙️", "🎚️", "🎛️", "🧭", "⏱️", "⏲️", "⏰", "🕰️", "⌛", "⏳", "📡", "🔋", "🔌", "💡", "🔦", "🕯️", "🪔", "🧯", "🛢️", "💸", "💵", "💴", "💶", "💷", "🪙", "💰", "💳", "💎", "⚖️", "🪜", "🧰", "🪛", "🔧", "🔨", "⚒️", "🛠️", "⛏️", "🪚", "🔩", "⚙️", "🪤", "🧱", "⛓️", "🧲", "🔫", "💣", "🧨", "🪓", "🔪", "🗡️", "⚔️", "🛡️", "🚬", "⚰️", "🪦", "⚱️", "🏺", "🔮", "📿", "🧿", "💈", "⚗️", "🔭", "🔬", "🕳️", "🩹", "🩺", "💊", "💉", "🩸", "🧬", "🦠", "🧫", "🧪", "🌡️", "🧹", "🪠", "🧺", "🧻", "🚽", "🚰", "🚿", "🛁", "🛀", "🧼", "🪥", "🪒", "🧽", "🪣", "🧴", "🛎️", "🔑", "🗝️", "🚪", "🪑", "🛋️", "🛏️", "🛌", "🧸", "🪆", "🖼️", "🪞", "🪟", "🛍️", "🛒", "🎁", "🎈", "🎏", "🎀", "🪄", "🪅", "🎊", "🎉", "🎎", "🏮", "🎐", "🧧", "✉️", "📩", "📨", "📧", "💌", "📥", "📤", "📦", "🏷️", "🪧", "📪", "📫", "📬", "📭", "📮", "📯", "📜", "📃", "📄", "📑", "🧾", "📊", "📈", "📉", "🗒️", "🗓️", "📆", "📅", "🗑️", "📇", "🗃️", "🗳️", "🗄️", "📋", "📁", "📂", "🗂️", "🗞️", "📰", "📓", "📔", "📒", "📕", "📗", "📘", "📙", "📚", "📖", "🔖", "🧷", "🔗", "📎", "🖇️", "📐", "📏", "🧮", "📌", "📍", "✂️", "🖊️", "🖋️", "✒️", "🖌️", "🖍️", "📝", "✏️", "🔍", "🔎", "🔏", "🔐", "🔒", "🔓"]), // Objects
+        ("❤️", ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "☮️", "✝️", "☪️", "🕉️", "☸️", "✡️", "🔯", "🕎", "☯️", "☦️", "🛐", "⛎", "♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓", "🆔", "⚛️", "🉑", "☢️", "☣️", "📴", "📳", "🈶", "🈚", "🈸", "🈺", "🈷️", "✴️", "🆚", "💮", "🉐", "㊙️", "㊗️", "🈴", "🈵", "🈹", "🈲", "🅰️", "🅱️", "🆎", "🆑", "🅾️", "🆘", "❌", "⭕", "🛑", "⛔", "📛", "🚫", "💯", "💢", "♨️", "🚷", "🚯", "🚳", "🚱", "🔞", "📵", "🚭", "❗", "❕", "❓", "❔", "‼️", "⁉️", "🔅", "🔆", "〽️", "⚠️", "🚸", "🔱", "⚜️", "🔰", "♻️", "✅", "🈯", "💹", "❇️", "✳️", "❎", "🌐", "💠", "Ⓜ️", "🌀", "💤", "🏧", "🚾", "♿", "🅿️", "🛗", "🈳", "🈂️", "🛂", "🛃", "🛄", "🛅", "🚹", "🚺", "🚼", "⚧️", "🚻", "🚮", "🎦", "📶", "🈁", "🔣", "ℹ️", "🔤", "🔡", "🔠", "🆖", "🆗", "🆙", "🆒", "🆕", "🆓", "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "🔢", "#️⃣", "*️⃣", "⏏️", "▶️", "⏸️", "⏯️", "⏹️", "⏺️", "⏭️", "⏮️", "⏩", "⏪", "⏫", "⏬", "◀️", "🔼", "🔽", "➡️", "⬅️", "⬆️", "⬇️", "↗️", "↘️", "↙️", "↖️", "↕️", "↔️", "↪️", "↩️", "⤴️", "⤵️", "🔀", "🔁", "🔂", "🔄", "🔃", "🎵", "🎶", "➕", "➖", "➗", "✖️", "🟰", "♾️", "💲", "💱", "™️", "©️", "®️", "👁️‍🗨️", "🔚", "🔙", "🔛", "🔝", "🔜", "〰️", "➰", "➿", "✔️", "☑️", "🔘", "🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "⚫", "⚪", "🟤", "🔺", "🔻", "🔸", "🔹", "🔶", "🔷", "🔳", "🔲", "▪️", "▫️", "◾", "◽", "◼️", "◻️", "🟥", "🟧", "🟨", "🟩", "🟦", "🟪", "⬛", "⬜", "🟫", "🔈", "🔇", "🔉", "🔊", "🔔", "🔕", "📣", "📢", "👁️‍🗨️", "💬", "💭", "🗯️", "♠️", "♣️", "♥️", "♦️", "🃏", "🎴", "🀄", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕜", "🕝", "🕞", "🕟", "🕠", "🕡", "🕢", "🕣", "🕤", "🕥", "🕦", "🕧"]), // Symbols
+        ("🏳️", ["🏳️", "🏴", "🏴‍☠️", "🏁", "🚩", "🎌", "🏳️‍🌈", "🏳️‍⚧️", "🇺🇳", "🇦🇫", "🇦🇱", "🇩🇿", "🇦🇸", "🇦🇩", "🇦🇴", "🇦🇮", "🇦🇶", "🇦🇬", "🇦🇷", "🇦🇲", "🇦🇼", "🇦🇺", "🇦🇹", "🇦🇿", "🇧🇸", "🇧🇭", "🇧🇩", "🇧🇧", "🇧🇾", "🇧🇪", "🇧🇿", "🇧🇯", "🇧🇲", "🇧🇹", "🇧🇴", "🇧🇦", "🇧🇼", "🇧🇷", "🇮🇴", "🇻🇬", "🇧🇳", "🇧🇬", "🇧🇫", "🇧🇮", "🇰🇭", "🇨🇲", "🇨🇦", "🇮🇨", "🇨🇻", "🇧🇶", "🇰🇾", "🇨🇫", "🇹🇩", "🇨🇱", "🇨🇳", "🇨🇽", "🇨🇨", "🇨🇴", "🇰🇲", "🇨🇬", "🇨🇩", "🇨🇰", "🇨🇷", "🇨🇮", "🇭🇷", "🇨🇺", "🇨🇼", "🇨🇾", "🇨🇿", "🇩🇰", "🇩🇯", "🇩🇲", "🇩🇴", "🇪🇨", "🇪🇬", "🇸🇻", "🇬🇶", "🇪🇷", "🇪🇪", "🇸🇿", "🇪🇹", "🇪🇺", "🇫🇰", "🇫🇴", "🇫🇯", "🇫🇮", "🇫🇷", "🇬🇫", "🇵🇫", "🇹🇫", "🇬🇦", "🇬🇲", "🇬🇪", "🇩🇪", "🇬🇭", "🇬🇮", "🇬🇷", "🇬🇱", "🇬🇩", "🇬🇵", "🇬🇺", "🇬🇹", "🇬🇬", "🇬🇳", "🇬🇼", "🇬🇾", "🇭🇹", "🇭🇳", "🇭🇰", "🇭🇺", "🇮🇸", "🇮🇳", "🇮🇩", "🇮🇷", "🇮🇶", "🇮🇪", "🇮🇲", "🇮🇱", "🇮🇹", "🇯🇲", "🇯🇵", "🎌", "🇯🇪", "🇯🇴", "🇰🇿", "🇰🇪", "🇰🇮", "🇽🇰", "🇰🇼", "🇰🇬", "🇱🇦", "🇱🇻", "🇱🇧", "🇱🇸", "🇱🇷", "🇱🇾", "🇱🇮", "🇱🇹", "🇱🇺", "🇲🇴", "🇲🇬", "🇲🇼", "🇲🇾", "🇲🇻", "🇲🇱", "🇲🇹", "🇲🇭", "🇲🇶", "🇲🇷", "🇲🇺", "🇾🇹", "🇲🇽", "🇫🇲", "🇲🇩", "🇲🇨", "🇲🇳", "🇲🇪", "🇲🇸", "🇲🇦", "🇲🇿", "🇲🇲", "🇳🇦", "🇳🇷", "🇳🇵", "🇳🇱", "🇳🇨", "🇳🇿", "🇳🇮", "🇳🇪", "🇳🇬", "🇳🇺", "🇳🇫", "🇰🇵", "🇲🇰", "🇲🇵", "🇳🇴", "🇴🇲", "🇵🇰", "🇵🇼", "🇵🇸", "🇵🇦", "🇵🇬", "🇵🇾", "🇵🇪", "🇵🇭", "🇵🇳", "🇵🇱", "🇵🇹", "🇵🇷", "🇶🇦", "🇷🇪", "🇷🇴", "🇷🇺", "🇷🇼", "🇼🇸", "🇸🇲", "🇸🇹", "🇸🇦", "🇸🇳", "🇷🇸", "🇸🇨", "🇸🇱", "🇸🇬", "🇸🇽", "🇸🇰", "🇸🇮", "🇬🇸", "🇸🇧", "🇸🇴", "🇿🇦", "🇰🇷", "🇸🇸", "🇪🇸", "🇱🇰", "🇧🇱", "🇸🇭", "🇰🇳", "🇱🇨", "🇵🇲", "🇻🇨", "🇸🇩", "🇸🇷", "🇸🇪", "🇨🇭", "🇸🇾", "🇹🇼", "🇹🇯", "🇹🇿", "🇹🇭", "🇹🇱", "🇹🇬", "🇹🇰", "🇹🇴", "🇹🇹", "🇹🇳", "🇹🇷", "🇹🇲", "🇹🇨", "🇹🇻", "🇻🇮", "🇺🇬", "🇺🇦", "🇦🇪", "🇬🇧", "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "🏴󠁧󠁢󠁷󠁬󠁳󠁿", "🇺🇸", "🇺🇾", "🇺🇿", "🇻🇺", "🇻🇦", "🇻🇪", "🇻🇳", "🇼🇫", "🇪🇭", "🇾🇪", "🇿🇲", "🇿🇼"]), // Flags
+        ("👋", ["👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤌", "🤏", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "🖕", "👇", "☝️", "👍", "👎", "✊", "👊", "🤛", "🤜", "👏", "🙌", "👐", "🤲", "🤝", "🙏", "✍️", "💅", "🤳", "💪", "🦾", "🦿", "🦵", "🦶", "👂", "🦻", "👃", "🧠", "🫀", "🫁", "🦷", "🦴", "👀", "👁️", "👅", "👄", "👶", "🧒", "👦", "👧", "🧑", "👱", "👨", "🧔", "👩", "🧓", "👴", "👵", "🙍", "🙎", "🙅", "🙆", "💁", "🙋", "🧏", "🙇", "🤦", "🤷", "👮", "🕵️", "💂", "🥷", "👷", "🤴", "👸", "👳", "👲", "🧕", "🤵", "👰", "🤰", "🤱", "👼", "🎅", "🤶", "🦸", "🦹", "🧙", "🧚", "🧛", "🧜", "🧝", "🧞", "🧟", "💆", "💇", "🚶", "🧍", "🧎", "🏃", "💃", "🕺", "🕴️", "👯", "🧖", "🧗", "🤸", "🏌️", "🏇", "⛷️", "🏂", "🏋️", "🤼", "🤽", "🤾", "🤺", "⛹️", "🏊", "🚣", "🧘", "🛀", "🛌", "👭", "👫", "👬", "💏", "💑", "👪", "👨‍👩‍👦", "👨‍👩‍👧", "👨‍👩‍👧‍👦", "👨‍👩‍👦‍👦", "👨‍👩‍👧‍👧", "👨‍👦", "👨‍👦‍👦", "👨‍👧", "👨‍👧‍👦", "👨‍👧‍👧", "👩‍👦", "👩‍👦‍👦", "👩‍👧", "👩‍👧‍👦", "👩‍👧‍👧", "🗣️", "👤", "👥", "🫂", "👣"]) // People & Hands
+    ]
     
     // 4. Layout Definitions
     // LOWERCASE (Standard)
@@ -43,14 +76,14 @@ class KeyboardViewController: UIInputViewController {
     }
     
     // Light mode colors
-    let lightBackground = UIColor(red: 210/255, green: 213/255, blue: 219/255, alpha: 1.0)
+    let lightBackground = UIColor.clear  // Transparent to match native iOS keyboard
     let lightKeyNormal = UIColor.white
     let lightKeyFunction = UIColor(red: 172/255, green: 177/255, blue: 185/255, alpha: 1.0)
     let lightKeyShadow = UIColor(red: 136/255, green: 138/255, blue: 142/255, alpha: 1.0)
     let lightTextColor = UIColor.black
     
     // Dark mode colors
-    let darkBackground = UIColor(red: 0/255, green: 0/255, blue: 0/255, alpha: 1.0)
+    let darkBackground = UIColor.clear  // Transparent to match native iOS keyboard
     let darkKeyNormal = UIColor(red: 74/255, green: 74/255, blue: 74/255, alpha: 1.0)  // #4A4A4A
     let darkKeyFunction = UIColor(red: 49/255, green: 49/255, blue: 49/255, alpha: 1.0)  // Slightly darker
     let darkKeyShadow = UIColor(red: 30/255, green: 30/255, blue: 30/255, alpha: 1.0)
@@ -66,6 +99,9 @@ class KeyboardViewController: UIInputViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Load recently used emojis
+        loadRecentEmojis()
         
         // Load Brain
         DispatchQueue.global(qos: .userInitiated).async {
@@ -83,6 +119,26 @@ class KeyboardViewController: UIInputViewController {
         
         // Register for theme changes (iOS 17+)
         registerTraitChanges()
+    }
+    
+    // MARK: - Recent Emojis
+    func loadRecentEmojis() {
+        if let saved = UserDefaults.standard.stringArray(forKey: recentEmojisKey) {
+            recentEmojis = saved
+        }
+    }
+    
+    func saveRecentEmoji(_ emoji: String) {
+        // Remove if already exists
+        recentEmojis.removeAll { $0 == emoji }
+        // Add to front
+        recentEmojis.insert(emoji, at: 0)
+        // Limit size
+        if recentEmojis.count > maxRecentEmojis {
+            recentEmojis = Array(recentEmojis.prefix(maxRecentEmojis))
+        }
+        // Save to UserDefaults
+        UserDefaults.standard.set(recentEmojis, forKey: recentEmojisKey)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -172,8 +228,15 @@ class KeyboardViewController: UIInputViewController {
     
     // MARK: - 2. Layout Engine (Redraws keys based on state)
     func updateKeyboardLayout() {
-        // 1. Remove old layout if it exists
+        // 1. Remove old layouts
         mainStackView?.removeFromSuperview()
+        emojiContainerView?.removeFromSuperview()
+        
+        // Check if emoji mode
+        if currentMode == .emojis {
+            setupEmojiLayout()
+            return
+        }
         
         // 2. Determine which keys to show
         var currentKeys: [[String]]
@@ -261,11 +324,11 @@ class KeyboardViewController: UIInputViewController {
         modeBtn.widthAnchor.constraint(equalToConstant: 90).isActive = true
         modeBtn.addTarget(self, action: #selector(modeTapped), for: .touchUpInside)
         
-        // Dot Key (with autocorrect)
-        let dotBtn = createKeyButton(title: ".", isFunctionKey: false)
-        dotBtn.removeTarget(nil, action: nil, for: .allEvents)
-        dotBtn.addTarget(self, action: #selector(punctuationTapped(_:)), for: .touchUpInside)
-        dotBtn.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        // Emoji Button (switches to next keyboard/emoji)
+        let emojiBtn = createKeyButton(title: "😊", isFunctionKey: true)
+        emojiBtn.removeTarget(nil, action: nil, for: .allEvents)
+        emojiBtn.addTarget(self, action: #selector(emojiTapped), for: .touchUpInside)
+        emojiBtn.widthAnchor.constraint(equalToConstant: 50).isActive = true
         
         // Space
         let spaceBtn = createKeyButton(title: "Navber", isFunctionKey: false)
@@ -277,7 +340,7 @@ class KeyboardViewController: UIInputViewController {
         returnBtn.addTarget(self, action: #selector(returnTapped), for: .touchUpInside)
 
         bottomRow.addArrangedSubview(modeBtn)
-        bottomRow.addArrangedSubview(dotBtn)
+        bottomRow.addArrangedSubview(emojiBtn)
         bottomRow.addArrangedSubview(spaceBtn)
         bottomRow.addArrangedSubview(returnBtn)
         
@@ -290,6 +353,231 @@ class KeyboardViewController: UIInputViewController {
             mainStackView.topAnchor.constraint(equalTo: suggestionBar.bottomAnchor, constant: 8),
             mainStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -4)
         ])
+    }
+    
+    // MARK: - Emoji Layout
+    func setupEmojiLayout() {
+        // Hide suggestion bar in emoji mode to get more space
+        suggestionBar.isHidden = true
+        
+        // Container for emoji view
+        emojiContainerView = UIView()
+        emojiContainerView!.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(emojiContainerView!)
+        
+        // Create collection view layout
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing = 2
+        layout.minimumLineSpacing = 6
+        let itemSize: CGFloat = 44
+        layout.itemSize = CGSize(width: itemSize, height: itemSize)
+        layout.sectionInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        
+        // Create collection view
+        emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        emojiCollectionView!.translatesAutoresizingMaskIntoConstraints = false
+        emojiCollectionView!.backgroundColor = .clear
+        emojiCollectionView!.delegate = self
+        emojiCollectionView!.dataSource = self
+        emojiCollectionView!.register(EmojiCell.self, forCellWithReuseIdentifier: "EmojiCell")
+        emojiCollectionView!.register(StickerCell.self, forCellWithReuseIdentifier: "StickerCell")
+        emojiCollectionView!.showsVerticalScrollIndicator = true
+        emojiContainerView!.addSubview(emojiCollectionView!)
+        
+        // Create category bar
+        emojiCategoryBar = UIStackView()
+        emojiCategoryBar!.axis = .horizontal
+        emojiCategoryBar!.distribution = .fillEqually
+        emojiCategoryBar!.spacing = 2
+        emojiCategoryBar!.translatesAutoresizingMaskIntoConstraints = false
+        emojiContainerView!.addSubview(emojiCategoryBar!)
+        
+        // Add ABC button first
+        let abcBtn = UIButton(type: .system)
+        abcBtn.setTitle("ABC", for: .normal)
+        abcBtn.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        abcBtn.setTitleColor(colorText, for: .normal)
+        abcBtn.backgroundColor = colorKeyFunction
+        abcBtn.layer.cornerRadius = 5
+        abcBtn.addTarget(self, action: #selector(exitEmojiMode), for: .touchUpInside)
+        emojiCategoryBar!.addArrangedSubview(abcBtn)
+        
+        // Add Stickers button (🖼️ icon)
+        let stickersBtn = UIButton(type: .system)
+        stickersBtn.setTitle("🖼️", for: .normal)
+        stickersBtn.titleLabel?.font = UIFont.systemFont(ofSize: 22)
+        stickersBtn.tag = -1 // Special tag for stickers
+        stickersBtn.addTarget(self, action: #selector(stickerCategoryTapped), for: .touchUpInside)
+        if isShowingStickers {
+            stickersBtn.backgroundColor = isDarkMode ? UIColor(white: 0.3, alpha: 1.0) : UIColor(white: 0.85, alpha: 1.0)
+            stickersBtn.layer.cornerRadius = 5
+        }
+        emojiCategoryBar!.addArrangedSubview(stickersBtn)
+        
+        // Add category buttons
+        for (index, category) in emojiCategories.enumerated() {
+            let btn = UIButton(type: .system)
+            btn.setTitle(category.icon, for: .normal)
+            btn.titleLabel?.font = UIFont.systemFont(ofSize: 22)
+            btn.tag = index
+            btn.addTarget(self, action: #selector(emojiCategoryTapped(_:)), for: .touchUpInside)
+            
+            // Highlight current category
+            if index == currentEmojiCategory && !isShowingStickers {
+                btn.backgroundColor = isDarkMode ? UIColor(white: 0.3, alpha: 1.0) : UIColor(white: 0.85, alpha: 1.0)
+                btn.layer.cornerRadius = 5
+            }
+            
+            emojiCategoryBar!.addArrangedSubview(btn)
+        }
+        
+        // Add backspace button at the end
+        let backspaceBtn = UIButton(type: .system)
+        backspaceBtn.setTitle("⌫", for: .normal)
+        backspaceBtn.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+        backspaceBtn.setTitleColor(colorText, for: .normal)
+        backspaceBtn.backgroundColor = colorKeyFunction
+        backspaceBtn.layer.cornerRadius = 5
+        backspaceBtn.addTarget(self, action: #selector(backspaceTapped), for: .touchUpInside)
+        emojiCategoryBar!.addArrangedSubview(backspaceBtn)
+        
+        // Layout constraints - use view.topAnchor since suggestion bar is hidden
+        NSLayoutConstraint.activate([
+            emojiContainerView!.leftAnchor.constraint(equalTo: view.leftAnchor),
+            emojiContainerView!.rightAnchor.constraint(equalTo: view.rightAnchor),
+            emojiContainerView!.topAnchor.constraint(equalTo: view.topAnchor),
+            emojiContainerView!.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            emojiContainerView!.heightAnchor.constraint(greaterThanOrEqualToConstant: 220),
+            
+            emojiCategoryBar!.leftAnchor.constraint(equalTo: emojiContainerView!.leftAnchor, constant: 4),
+            emojiCategoryBar!.rightAnchor.constraint(equalTo: emojiContainerView!.rightAnchor, constant: -4),
+            emojiCategoryBar!.bottomAnchor.constraint(equalTo: emojiContainerView!.bottomAnchor, constant: -4),
+            emojiCategoryBar!.heightAnchor.constraint(equalToConstant: 42),
+            
+            emojiCollectionView!.leftAnchor.constraint(equalTo: emojiContainerView!.leftAnchor),
+            emojiCollectionView!.rightAnchor.constraint(equalTo: emojiContainerView!.rightAnchor),
+            emojiCollectionView!.topAnchor.constraint(equalTo: emojiContainerView!.topAnchor),
+            emojiCollectionView!.bottomAnchor.constraint(equalTo: emojiCategoryBar!.topAnchor, constant: -4),
+            emojiCollectionView!.heightAnchor.constraint(greaterThanOrEqualToConstant: 160)
+        ])
+        
+        // Force layout and reload data
+        view.layoutIfNeeded()
+        emojiCollectionView!.reloadData()
+    }
+    
+    @objc func emojiCategoryTapped(_ sender: UIButton) {
+        isShowingStickers = false
+        currentEmojiCategory = sender.tag
+        emojiCollectionView?.reloadData()
+        emojiCollectionView?.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+        
+        // Update category bar highlighting
+        updateKeyboardLayout()
+    }
+    
+    @objc func stickerCategoryTapped() {
+        isShowingStickers = true
+        emojiCollectionView?.reloadData()
+        if stickerNames.count > 0 {
+            emojiCollectionView?.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+        }
+        
+        // Update category bar highlighting
+        updateKeyboardLayout()
+    }
+    
+    @objc func exitEmojiMode() {
+        suggestionBar.isHidden = false
+        isShowingStickers = false
+        currentMode = .letters
+        updateKeyboardLayout()
+    }
+    
+    // MARK: - Sticker Handling
+    func insertSticker(_ stickerName: String) {
+        guard let image = UIImage(named: stickerName) else { return }
+        
+        // Check if we have Full Access
+        if canAccessClipboard {
+            // Copy image to clipboard
+            UIPasteboard.general.image = image
+            
+            // Show feedback
+            showStickerCopiedFeedback()
+        } else {
+            // Prompt user to enable Full Access
+            showFullAccessPrompt()
+        }
+    }
+    
+    func showStickerCopiedFeedback() {
+        let feedbackLabel = UILabel()
+        feedbackLabel.text = "Copied! Paste to share"
+        feedbackLabel.textColor = .white
+        feedbackLabel.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        feedbackLabel.textAlignment = .center
+        feedbackLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        feedbackLabel.layer.cornerRadius = 8
+        feedbackLabel.clipsToBounds = true
+        feedbackLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(feedbackLabel)
+        NSLayoutConstraint.activate([
+            feedbackLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            feedbackLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            feedbackLabel.widthAnchor.constraint(equalToConstant: 180),
+            feedbackLabel.heightAnchor.constraint(equalToConstant: 36)
+        ])
+        
+        // Animate and remove
+        UIView.animate(withDuration: 0.3, delay: 1.5, options: [], animations: {
+            feedbackLabel.alpha = 0
+        }, completion: { _ in
+            feedbackLabel.removeFromSuperview()
+        })
+    }
+    
+    func showFullAccessPrompt() {
+        let feedbackLabel = UILabel()
+        feedbackLabel.text = "Enable Full Access in Settings"
+        feedbackLabel.textColor = .white
+        feedbackLabel.backgroundColor = UIColor.systemOrange
+        feedbackLabel.textAlignment = .center
+        feedbackLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        feedbackLabel.layer.cornerRadius = 8
+        feedbackLabel.clipsToBounds = true
+        feedbackLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(feedbackLabel)
+        NSLayoutConstraint.activate([
+            feedbackLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            feedbackLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            feedbackLabel.widthAnchor.constraint(equalToConstant: 250),
+            feedbackLabel.heightAnchor.constraint(equalToConstant: 36)
+        ])
+        
+        UIView.animate(withDuration: 0.3, delay: 2.0, options: [], animations: {
+            feedbackLabel.alpha = 0
+        }, completion: { _ in
+            feedbackLabel.removeFromSuperview()
+        })
+    }
+    
+    var canAccessClipboard: Bool {
+        return isOpenAccessGranted
+    }
+    
+    var isOpenAccessGranted: Bool {
+        // Check if we can write to pasteboard (indicates Full Access)
+        let testString = UUID().uuidString
+        UIPasteboard.general.string = testString
+        let canWrite = UIPasteboard.general.string == testString
+        if canWrite {
+            UIPasteboard.general.string = ""
+        }
+        return canWrite
     }
     
     // MARK: - 3. Styling Engine
@@ -440,6 +728,13 @@ class KeyboardViewController: UIInputViewController {
         updateKeyboardLayout() // Re-draw keys
     }
     
+    @objc func emojiTapped() {
+        // Switch to emoji keyboard mode
+        currentMode = .emojis
+        currentEmojiCategory = 1 // Start with smileys (index 1, since 0 is recent)
+        updateKeyboardLayout()
+    }
+    
     @objc func spaceTapped() {
         performAutocorrect()
         textDocumentProxy.insertText(" ")
@@ -585,5 +880,110 @@ class KeyboardViewController: UIInputViewController {
             divider.isHidden = (index + 1 >= visibleCount)
             divider.backgroundColor = colorDivider
         }
+    }
+}
+
+// MARK: - Emoji Collection View Delegate & DataSource
+extension KeyboardViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    // Helper to get emojis for current category (handles recent emojis)
+    func getEmojisForCurrentCategory() -> [String] {
+        if currentEmojiCategory == 0 {
+            // Recent emojis
+            return recentEmojis
+        }
+        return emojiCategories[currentEmojiCategory].emojis
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if isShowingStickers {
+            return stickerNames.count
+        }
+        return getEmojisForCurrentCategory().count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if isShowingStickers {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "StickerCell", for: indexPath) as! StickerCell
+            let stickerName = stickerNames[indexPath.item]
+            cell.configure(with: stickerName)
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as! EmojiCell
+            let emojis = getEmojisForCurrentCategory()
+            let emoji = emojis[indexPath.item]
+            cell.configure(with: emoji)
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if isShowingStickers {
+            let stickerName = stickerNames[indexPath.item]
+            insertSticker(stickerName)
+        } else {
+            let emojis = getEmojisForCurrentCategory()
+            let emoji = emojis[indexPath.item]
+            textDocumentProxy.insertText(emoji)
+            // Save to recent emojis
+            saveRecentEmoji(emoji)
+        }
+    }
+}
+
+// MARK: - Emoji Cell
+class EmojiCell: UICollectionViewCell {
+    private let emojiLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 30)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(emojiLabel)
+        NSLayoutConstraint.activate([
+            emojiLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            emojiLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(with emoji: String) {
+        emojiLabel.text = emoji
+    }
+}
+
+// MARK: - Sticker Cell
+class StickerCell: UICollectionViewCell {
+    private let stickerImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(stickerImageView)
+        NSLayoutConstraint.activate([
+            stickerImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 2),
+            stickerImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -2),
+            stickerImageView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 2),
+            stickerImageView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -2)
+        ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(with stickerName: String) {
+        stickerImageView.image = UIImage(named: stickerName)
     }
 }

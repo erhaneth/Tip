@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D5E6F4672ECD29500032B1B5"
-               BuildableName = "Renisan.app"
+               BuildableName = "Tip.app"
                BlueprintName = "Renisan"
                ReferencedContainer = "container:Renisan.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D5E6F4672ECD29500032B1B5"
-            BuildableName = "Renisan.app"
+            BuildableName = "Tip.app"
             BlueprintName = "Renisan"
             ReferencedContainer = "container:Renisan.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D5E6F4672ECD29500032B1B5"
-            BuildableName = "Renisan.app"
+            BuildableName = "Tip.app"
             BlueprintName = "Renisan"
             ReferencedContainer = "container:Renisan.xcodeproj">
          </BuildableReference>

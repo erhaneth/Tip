@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D5C54C242ECD2FF900E22868 /* RenisanBoard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D5C54C1D2ECD2FF900E22868 /* RenisanBoard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D5C54C242ECD2FF900E22868 /* TipBoard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D5C54C1D2ECD2FF900E22868 /* TipBoard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,7 +27,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D5C54C242ECD2FF900E22868 /* RenisanBoard.appex in Embed Foundation Extensions */,
+				D5C54C242ECD2FF900E22868 /* TipBoard.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -35,8 +35,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		D5C54C1D2ECD2FF900E22868 /* RenisanBoard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RenisanBoard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		D5E6F4682ECD29500032B1B5 /* Renisan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Renisan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5C54C1D2ECD2FF900E22868 /* TipBoard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TipBoard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5E6F4682ECD29500032B1B5 /* Tip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -103,8 +103,8 @@
 		D5E6F4692ECD29500032B1B5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D5E6F4682ECD29500032B1B5 /* Renisan.app */,
-				D5C54C1D2ECD2FF900E22868 /* RenisanBoard.appex */,
+				D5E6F4682ECD29500032B1B5 /* Tip.app */,
+				D5C54C1D2ECD2FF900E22868 /* TipBoard.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -131,7 +131,7 @@
 			packageProductDependencies = (
 			);
 			productName = RenisanBoard;
-			productReference = D5C54C1D2ECD2FF900E22868 /* RenisanBoard.appex */;
+			productReference = D5C54C1D2ECD2FF900E22868 /* TipBoard.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		D5E6F4672ECD29500032B1B5 /* Renisan */ = {
@@ -155,7 +155,7 @@
 			packageProductDependencies = (
 			);
 			productName = Renisan;
-			productReference = D5E6F4682ECD29500032B1B5 /* Renisan.app */;
+			productReference = D5E6F4682ECD29500032B1B5 /* Tip.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -256,7 +256,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gumusdev.Tip.TipBoard;
-				PRODUCT_NAME = RenisanBoard;
+				PRODUCT_NAME = TipBoard;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -284,7 +284,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gumusdev.Tip.TipBoard;
-				PRODUCT_NAME = RenisanBoard;
+				PRODUCT_NAME = TipBoard;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -437,7 +437,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gumusdev.Tip;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Tip;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -471,7 +471,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gumusdev.Tip;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Tip;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
