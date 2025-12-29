@@ -16,7 +16,7 @@
 			containerPortal = D5E6F4602ECD29500032B1B5 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = D5C54C1C2ECD2FF900E22868;
-			remoteInfo = RenisanBoard;
+			remoteInfo = TipBoard;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -39,36 +39,15 @@
 		D5E6F4682ECD29500032B1B5 /* Tip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D5C54C282ECD2FF900E22868 /* Exceptions for "RenisanBoard" folder in "RenisanBoard" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = D5C54C1C2ECD2FF900E22868 /* RenisanBoard */;
-		};
-		D5C54C2A2ECD306D00E22868 /* Exceptions for "RenisanBoard" folder in "Renisan" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				PredictionEngine.swift,
-			);
-			target = D5E6F4672ECD29500032B1B5 /* Renisan */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D5C54C1E2ECD2FF900E22868 /* RenisanBoard */ = {
+		D5C54C1E2ECD2FF900E22868 /* TipBoard */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D5C54C2A2ECD306D00E22868 /* Exceptions for "RenisanBoard" folder in "Renisan" target */,
-				D5C54C282ECD2FF900E22868 /* Exceptions for "RenisanBoard" folder in "RenisanBoard" target */,
-			);
-			path = RenisanBoard;
+			path = TipBoard;
 			sourceTree = "<group>";
 		};
-		D5E6F46A2ECD29500032B1B5 /* Renisan */ = {
+		D5E6F46A2ECD29500032B1B5 /* Tip */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Renisan;
+			path = Tip;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -94,8 +73,8 @@
 		D5E6F45F2ECD29500032B1B5 = {
 			isa = PBXGroup;
 			children = (
-				D5E6F46A2ECD29500032B1B5 /* Renisan */,
-				D5C54C1E2ECD2FF900E22868 /* RenisanBoard */,
+				D5E6F46A2ECD29500032B1B5 /* Tip */,
+				D5C54C1E2ECD2FF900E22868 /* TipBoard */,
 				D5E6F4692ECD29500032B1B5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,9 +91,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D5C54C1C2ECD2FF900E22868 /* RenisanBoard */ = {
+		D5C54C1C2ECD2FF900E22868 /* TipBoard */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D5C54C292ECD2FF900E22868 /* Build configuration list for PBXNativeTarget "RenisanBoard" */;
+			buildConfigurationList = D5C54C292ECD2FF900E22868 /* Build configuration list for PBXNativeTarget "TipBoard" */;
 			buildPhases = (
 				D5C54C192ECD2FF900E22868 /* Sources */,
 				D5C54C1A2ECD2FF900E22868 /* Frameworks */,
@@ -125,18 +104,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				D5C54C1E2ECD2FF900E22868 /* RenisanBoard */,
+				D5C54C1E2ECD2FF900E22868 /* TipBoard */,
 			);
-			name = RenisanBoard;
+			name = TipBoard;
 			packageProductDependencies = (
 			);
-			productName = RenisanBoard;
+			productName = TipBoard;
 			productReference = D5C54C1D2ECD2FF900E22868 /* TipBoard.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		D5E6F4672ECD29500032B1B5 /* Renisan */ = {
+		D5E6F4672ECD29500032B1B5 /* Tip */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D5E6F4732ECD29540032B1B5 /* Build configuration list for PBXNativeTarget "Renisan" */;
+			buildConfigurationList = D5E6F4732ECD29540032B1B5 /* Build configuration list for PBXNativeTarget "Tip" */;
 			buildPhases = (
 				D5E6F4642ECD29500032B1B5 /* Sources */,
 				D5E6F4652ECD29500032B1B5 /* Frameworks */,
@@ -149,12 +128,12 @@
 				D5C54C232ECD2FF900E22868 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				D5E6F46A2ECD29500032B1B5 /* Renisan */,
+				D5E6F46A2ECD29500032B1B5 /* Tip */,
 			);
-			name = Renisan;
+			name = Tip;
 			packageProductDependencies = (
 			);
-			productName = Renisan;
+			productName = Tip;
 			productReference = D5E6F4682ECD29500032B1B5 /* Tip.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -176,7 +155,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D5E6F4632ECD29500032B1B5 /* Build configuration list for PBXProject "Renisan" */;
+			buildConfigurationList = D5E6F4632ECD29500032B1B5 /* Build configuration list for PBXProject "Tip" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -190,8 +169,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D5E6F4672ECD29500032B1B5 /* Renisan */,
-				D5C54C1C2ECD2FF900E22868 /* RenisanBoard */,
+				D5E6F4672ECD29500032B1B5 /* Tip */,
+				D5C54C1C2ECD2FF900E22868 /* TipBoard */,
 			);
 		};
 /* End PBXProject section */
@@ -233,7 +212,7 @@
 /* Begin PBXTargetDependency section */
 		D5C54C232ECD2FF900E22868 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D5C54C1C2ECD2FF900E22868 /* RenisanBoard */;
+			target = D5C54C1C2ECD2FF900E22868 /* TipBoard */;
 			targetProxy = D5C54C222ECD2FF900E22868 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -246,7 +225,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UJ7HGC6533;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RenisanBoard/Info.plist;
+				INFOPLIST_FILE = TipBoard/TipBoard-Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Tîp";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -274,7 +253,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UJ7HGC6533;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RenisanBoard/Info.plist;
+				INFOPLIST_FILE = TipBoard/TipBoard-Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Tîp";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -485,7 +464,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D5C54C292ECD2FF900E22868 /* Build configuration list for PBXNativeTarget "RenisanBoard" */ = {
+		D5C54C292ECD2FF900E22868 /* Build configuration list for PBXNativeTarget "TipBoard" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D5C54C262ECD2FF900E22868 /* Debug */,
@@ -494,7 +473,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D5E6F4632ECD29500032B1B5 /* Build configuration list for PBXProject "Renisan" */ = {
+		D5E6F4632ECD29500032B1B5 /* Build configuration list for PBXProject "Tip" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D5E6F4712ECD29540032B1B5 /* Debug */,
@@ -503,7 +482,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D5E6F4732ECD29540032B1B5 /* Build configuration list for PBXNativeTarget "Renisan" */ = {
+		D5E6F4732ECD29540032B1B5 /* Build configuration list for PBXNativeTarget "Tip" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D5E6F4742ECD29540032B1B5 /* Debug */,

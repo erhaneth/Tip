@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Renisan
+//  Tip
 //
 //  Created by erhan gumus on 11/18/25.
 //
