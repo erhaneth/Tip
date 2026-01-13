@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2610"
+   LastUpgradeVersion = "2620"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
@@ -19,7 +19,7 @@
                BlueprintIdentifier = "D5C54C1C2ECD2FF900E22868"
                BuildableName = "TipBoard.appex"
                BlueprintName = "TipBoard"
-               ReferencedContainer = "container:Tip.xcodeproj">
+               ReferencedContainer = "container:kurmanji_dictionary.json.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -33,7 +33,7 @@
                BlueprintIdentifier = "D5E6F4672ECD29500032B1B5"
                BuildableName = "Tip.app"
                BlueprintName = "Tip"
-               ReferencedContainer = "container:Tip.xcodeproj">
+               ReferencedContainer = "container:kurmanji_dictionary.json.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -68,7 +68,7 @@
             BlueprintIdentifier = "D5E6F4672ECD29500032B1B5"
             BuildableName = "Tip.app"
             BlueprintName = "Tip"
-            ReferencedContainer = "container:Tip.xcodeproj">
+            ReferencedContainer = "container:kurmanji_dictionary.json.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </LaunchAction>
@@ -87,7 +87,7 @@
             BlueprintIdentifier = "D5E6F4672ECD29500032B1B5"
             BuildableName = "Tip.app"
             BlueprintName = "Tip"
-            ReferencedContainer = "container:Tip.xcodeproj">
+            ReferencedContainer = "container:kurmanji_dictionary.json.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

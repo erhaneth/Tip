@@ -188,11 +188,13 @@ class KeyboardViewController: UIInputViewController {
 
         for i in 0..<3 {
             // Add button
-            let btn = UIButton(type: .system)
+            var config = UIButton.Configuration.plain()
+            config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
+
+            let btn = UIButton(configuration: config)
             btn.backgroundColor = .clear
             btn.setTitleColor(colorText, for: .normal)
             btn.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-            btn.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
             btn.isHidden = true
             btn.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
             suggestionButtons.append(btn)
