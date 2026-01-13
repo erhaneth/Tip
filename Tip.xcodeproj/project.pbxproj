@@ -225,8 +225,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UJ7HGC6533;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TipBoard/TipBoard-Info.plist;
+				INFOPLIST_FILE = "TipBoard/TipBoard-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Tîp";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -253,8 +254,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = UJ7HGC6533;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TipBoard/TipBoard-Info.plist;
+				INFOPLIST_FILE = "TipBoard/TipBoard-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Tîp";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

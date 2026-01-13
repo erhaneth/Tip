@@ -48,6 +48,7 @@ class PredictionEngine {
     
     init() {
         loadModel()
+        loadDictionary()
     }
     
     // MARK: - Data Validation
@@ -65,63 +66,43 @@ class PredictionEngine {
     
     func loadModel() {
         guard let path = Bundle.main.path(forResource: "kurmanji_model_optimized", ofType: "json") else { return }
-        
+
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: path))
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                     self.model = json
-                    
-                    // Extract vocabulary from unigrams for autocorrect
-                    self.extractVocabulary()
-                    
-                    print("✅ Brain Loaded (Autocorrect Version 3.0)")
+                    print("✅ N-gram Model Loaded (Word Prediction)")
                 }
             } catch {
-                print("❌ Error loading brain: \(error)")
+                print("❌ Error loading n-gram model: \(error)")
             }
         }
     }
-    
-    // MARK: - Vocabulary Extraction
-    private func extractVocabulary() {
-        // Extract words from unigrams (key "1")
-        if let unigrams = model["1"] as? [String: [String: Double]] {
-            for (_, nextWords) in unigrams {
-                for (word, frequency) in nextWords {
-                    // Only add clean words (no garbage data)
-                    guard isCleanWord(word) else { continue }
-                    validWords.insert(word)
-                    // Keep the highest frequency if word appears multiple times
-                    if let existing = wordFrequencies[word] {
-                        wordFrequencies[word] = max(existing, frequency)
-                    } else {
-                        wordFrequencies[word] = frequency
+
+    func loadDictionary() {
+        guard let path = Bundle.main.path(forResource: "kurmanji_dictionary", ofType: "json") else {
+            print("⚠️ Dictionary file not found - spell checking disabled")
+            return
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path))
+                if let words = try JSONSerialization.jsonObject(with: data, options: []) as? [String] {
+                    // Load all words into the set
+                    for word in words {
+                        guard self.isCleanWord(word) else { continue }
+                        self.validWords.insert(word)
+                        // Set equal frequency for all words
+                        self.wordFrequencies[word] = 1.0
                     }
+                    print("✅ Dictionary Loaded: \(self.validWords.count) words (Spell Checker)")
                 }
+            } catch {
+                print("❌ Error loading dictionary: \(error) - spell checking disabled")
             }
         }
-        
-        // Also extract from 2-grams for more coverage
-        if let bigrams = model["2"] as? [String: [String: Double]] {
-            for (contextWord, nextWords) in bigrams {
-                // Only add clean words
-                if isCleanWord(contextWord) {
-                    validWords.insert(contextWord)
-                }
-                for (word, frequency) in nextWords {
-                    guard isCleanWord(word) else { continue }
-                    validWords.insert(word)
-                    if let existing = wordFrequencies[word] {
-                        wordFrequencies[word] = max(existing, frequency)
-                    } else {
-                        wordFrequencies[word] = frequency
-                    }
-                }
-            }
-        }
-        
-        print("📚 Vocabulary loaded: \(validWords.count) clean words")
     }
     
     // MARK: - Autocorrect Methods
@@ -207,6 +188,68 @@ class PredictionEngine {
         return dp[m][n]
     }
     
+    /// Get spelling suggestions for a word (returns top 3 candidates)
+    /// Returns empty array if word is valid or too short
+    func getSpellingSuggestions(for word: String, maxSuggestions: Int = 3) -> [String] {
+        let lowercased = word.lowercased()
+
+        // If word is valid, no suggestions needed
+        if isValidWord(lowercased) {
+            return []
+        }
+
+        // Don't suggest for very short words (1-2 chars)
+        if lowercased.count < 3 {
+            return []
+        }
+
+        // Find candidates within edit distance threshold
+        let maxDistance: Double = 2.0
+        var candidates: [(word: String, distance: Double, frequency: Double)] = []
+
+        // Only check words of similar length (±2 characters)
+        let minLen = max(1, lowercased.count - 2)
+        let maxLen = lowercased.count + 2
+
+        for validWord in validWords {
+            guard validWord.count >= minLen && validWord.count <= maxLen else { continue }
+
+            // Quick filter: first letter should match or be adjacent
+            let firstChar = lowercased.first!
+            let validFirstChar = validWord.first!
+            let adjacentToFirst = keyboardAdjacency[firstChar] ?? []
+
+            if firstChar != validFirstChar && !adjacentToFirst.contains(validFirstChar) {
+                continue
+            }
+
+            let distance = keyboardAwareDistance(lowercased, validWord)
+
+            if distance <= maxDistance {
+                let frequency = wordFrequencies[validWord] ?? 0.0
+                candidates.append((validWord, distance, frequency))
+            }
+        }
+
+        // No candidates found
+        if candidates.isEmpty {
+            return []
+        }
+
+        // Sort by: 1) distance (lower is better), 2) frequency (higher is better)
+        candidates.sort { (a, b) in
+            if a.distance != b.distance {
+                return a.distance < b.distance
+            }
+            return a.frequency > b.frequency
+        }
+
+        // Return top suggestions with capitalization preserved
+        return candidates.prefix(maxSuggestions).map { candidate in
+            matchCapitalization(original: word, correction: candidate.word)
+        }
+    }
+
     /// Get autocorrect suggestion for a misspelled word
     /// Returns nil if word is valid or no good correction found
     func getCorrection(for word: String) -> String? {

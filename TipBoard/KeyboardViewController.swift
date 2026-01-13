@@ -185,13 +185,14 @@ class KeyboardViewController: UIInputViewController {
         suggestionBar.spacing = 0
         suggestionBar.translatesAutoresizingMaskIntoConstraints = false
         suggestionBar.backgroundColor = colorBackground
-        
+
         for i in 0..<3 {
             // Add button
             let btn = UIButton(type: .system)
             btn.backgroundColor = .clear
             btn.setTitleColor(colorText, for: .normal)
             btn.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+            btn.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
             btn.isHidden = true
             btn.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
             suggestionButtons.append(btn)
@@ -317,32 +318,36 @@ class KeyboardViewController: UIInputViewController {
         bottomRow.axis = .horizontal
         bottomRow.spacing = 6
         bottomRow.distribution = .fillProportionally
-        
+
         // 123 / ABC Button
         let modeTitle = (currentMode == .letters) ? "123" : "ABC"
         let modeBtn = createKeyButton(title: modeTitle, isFunctionKey: true)
-        modeBtn.widthAnchor.constraint(equalToConstant: 90).isActive = true
+        modeBtn.widthAnchor.constraint(equalToConstant: 75).isActive = true
         modeBtn.addTarget(self, action: #selector(modeTapped), for: .touchUpInside)
-        
+
         // Emoji Button (switches to next keyboard/emoji)
         let emojiBtn = createKeyButton(title: "😊", isFunctionKey: true)
         emojiBtn.removeTarget(nil, action: nil, for: .allEvents)
         emojiBtn.addTarget(self, action: #selector(emojiTapped), for: .touchUpInside)
-        emojiBtn.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        
-        // Space
+        emojiBtn.widthAnchor.constraint(equalToConstant: 45).isActive = true
+
+        // Space (Navber) - Make it larger and more prominent
         let spaceBtn = createKeyButton(title: "Navber", isFunctionKey: false)
         spaceBtn.addTarget(self, action: #selector(spaceTapped), for: .touchUpInside)
-        
+        spaceBtn.heightAnchor.constraint(equalToConstant: 48).isActive = true
+
         // Return
         let returnBtn = createKeyButton(title: "⏎", isFunctionKey: true)
-        returnBtn.widthAnchor.constraint(equalToConstant: 90).isActive = true
+        returnBtn.widthAnchor.constraint(equalToConstant: 75).isActive = true
         returnBtn.addTarget(self, action: #selector(returnTapped), for: .touchUpInside)
 
         bottomRow.addArrangedSubview(modeBtn)
         bottomRow.addArrangedSubview(emojiBtn)
         bottomRow.addArrangedSubview(spaceBtn)
         bottomRow.addArrangedSubview(returnBtn)
+
+        // Set minimum height for bottom row to make spacebar more prominent
+        bottomRow.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
         
         mainStackView.addArrangedSubview(bottomRow)
         view.addSubview(mainStackView)
@@ -600,7 +605,7 @@ class KeyboardViewController: UIInputViewController {
         }
 
         // Auto-add action for standard keys (single character keys)
-        if !["⌫", "Navber", "⏎", "123", "ABC", "⇧", "⬆", "#+=", "."].contains(title) {
+        if !["⌫", "Navber", "⏎", "123", "ABC", "⇧", "⬆", "#+="].contains(title) {
             btn.addTarget(self, action: #selector(keyTouchDown(_:)), for: .touchDown)
             btn.addTarget(self, action: #selector(keyTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         }
@@ -736,7 +741,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     @objc func spaceTapped() {
-        performAutocorrect()
+        // Auto-correction disabled - suggestions shown in bar only
+        // performAutocorrect()
         textDocumentProxy.insertText(" ")
         updatePredictions()
     }
@@ -747,7 +753,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     @objc func returnTapped() {
-        performAutocorrect()
+        // Auto-correction disabled - suggestions shown in bar only
+        // performAutocorrect()
         textDocumentProxy.insertText("\n")
         updatePredictions()
     }
@@ -787,10 +794,11 @@ class KeyboardViewController: UIInputViewController {
         return words.last
     }
     
-    /// Handler for punctuation keys (autocorrect before inserting)
+    /// Handler for punctuation keys (suggestions shown in bar only)
     @objc func punctuationTapped(_ sender: UIButton) {
         guard let punctuation = sender.title(for: .normal) else { return }
-        performAutocorrect()
+        // Auto-correction disabled - suggestions shown in bar only
+        // performAutocorrect()
         textDocumentProxy.insertText(punctuation)
         UIDevice.current.playInputClick()
         updatePredictions()
@@ -834,49 +842,124 @@ class KeyboardViewController: UIInputViewController {
     func updatePredictions() {
         let proxy = self.textDocumentProxy
         guard let context = proxy.documentContextBeforeInput else {
-            updateButtons(with: [])
+            updateButtons(typedWord: nil, bestCorrection: nil, nextWords: [])
             return
         }
-        
+
         DispatchQueue.global(qos: .userInteractive).async {
             guard let engine = self.predictionEngine else { return }
-            let suggestions = engine.getSuggestions(for: context)
+
+            // Check if user is typing a word (no space at end)
+            let isTypingWord = !context.hasSuffix(" ") && !context.hasSuffix("\n")
+
+            var typedWord: String? = nil
+            var bestCorrection: String? = nil
+            var nextWordPredictions: [String] = []
+
+            if isTypingWord, let currentWord = self.getCurrentWord(), currentWord.count >= 1 {
+                typedWord = currentWord
+
+                // Get spelling correction if word is 3+ chars
+                if currentWord.count >= 3 {
+                    let spellingSuggestions = engine.getSpellingSuggestions(for: currentWord, maxSuggestions: 1)
+                    bestCorrection = spellingSuggestions.first
+                }
+
+                // Get next-word predictions based on PREVIOUS context (not the partial word)
+                // Remove the current partial word to get predictions for what comes AFTER it
+                let words = context.components(separatedBy: .whitespacesAndNewlines)
+                let previousContext = words.dropLast().joined(separator: " ")
+                if !previousContext.isEmpty {
+                    nextWordPredictions = engine.getSuggestions(for: previousContext + " ")
+                } else {
+                    // No previous context - get general predictions
+                    nextWordPredictions = engine.getSuggestions(for: " ")
+                }
+            } else {
+                // Not typing - get next-word predictions normally
+                nextWordPredictions = engine.getSuggestions(for: context)
+            }
+
             DispatchQueue.main.async {
-                self.updateButtons(with: suggestions)
+                self.updateButtons(typedWord: typedWord, bestCorrection: bestCorrection, nextWords: nextWordPredictions)
             }
         }
     }
     
-    func updateButtons(with words: [String]) {
-        // Get the current partial word for quote style
-        let currentWord = getCurrentWord() ?? ""
-        
-        if words.isEmpty {
-            for btn in suggestionButtons { btn.isHidden = true }
-            for divider in suggestionDividers { divider.isHidden = true }
-            return
+    func updateButtons(typedWord: String?, bestCorrection: String?, nextWords: [String]) {
+        // 3-segment layout:
+        // Left: Typed word in quotes "word" OR first next-word prediction
+        // Center: Best spelling correction (highlighted) OR second next-word prediction
+        // Right: Next-word prediction (third or second depending on context)
+
+        var segments: [String] = []
+        var centerIsHighlighted = false
+
+        if let typed = typedWord, !typed.isEmpty {
+            // User is typing a word
+
+            // Left: Typed word in quotes
+            segments.append("\"\(typed)\"")
+
+            // Center: Best correction (if misspelled) OR first next-word prediction
+            if let correction = bestCorrection, correction.lowercased() != typed.lowercased() {
+                segments.append(correction)
+                centerIsHighlighted = true
+
+                // Right: First next-word prediction
+                if !nextWords.isEmpty {
+                    segments.append(nextWords[0])
+                }
+            } else {
+                // No correction needed - fill with next-word predictions
+                // Center: First prediction
+                if nextWords.count > 0 {
+                    segments.append(nextWords[0])
+                }
+                // Right: Second prediction
+                if nextWords.count > 1 {
+                    segments.append(nextWords[1])
+                }
+            }
+        } else {
+            // Not typing - show up to 3 next-word predictions
+            segments = Array(nextWords.prefix(3))
         }
-        
+
+        // Update buttons
         var visibleCount = 0
         for (index, btn) in suggestionButtons.enumerated() {
-            if index < words.count {
-                // First suggestion shows what user typed in quotes (if they're typing)
-                if index == 0 && !currentWord.isEmpty {
-                    btn.setTitle("\"\(currentWord)\"", for: .normal)
+            if index < segments.count {
+                btn.setTitle(segments[index], for: .normal)
+
+                // Highlight center button if it's a spelling correction (iOS style)
+                if centerIsHighlighted && index == 1 && segments.count >= 2 {
+                    // Use a more visible iOS-style highlight
+                    if isDarkMode {
+                        btn.setTitleColor(.white, for: .normal)
+                        btn.backgroundColor = UIColor(white: 0.3, alpha: 1.0)
+                    } else {
+                        btn.setTitleColor(.black, for: .normal)
+                        btn.backgroundColor = UIColor(white: 0.85, alpha: 1.0)
+                    }
+                    btn.layer.cornerRadius = 6
+                    btn.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
                 } else {
-                    btn.setTitle(words[index], for: .normal)
+                    btn.setTitleColor(colorText, for: .normal)
+                    btn.backgroundColor = .clear
+                    btn.layer.cornerRadius = 0
+                    btn.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
-                btn.setTitleColor(colorText, for: .normal)
+
                 btn.isHidden = false
                 visibleCount += 1
             } else {
                 btn.isHidden = true
             }
         }
-        
+
         // Show/hide dividers based on visible buttons
         for (index, divider) in suggestionDividers.enumerated() {
-            // Show divider only if there are buttons on both sides
             divider.isHidden = (index + 1 >= visibleCount)
             divider.backgroundColor = colorDivider
         }

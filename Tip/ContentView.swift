@@ -184,7 +184,7 @@ struct FeaturesView: View {
                         HStack(spacing: 4) {
                             Image(systemName: "brain.head.profile")
                                 .font(.caption)
-                            Text("Ji 50,000+ hevokan hînbûyî")
+                            Text("Model ji 50,000+ hevokan hînbûyî")
                                 .font(.caption)
                         }
                         .foregroundColor(.gray)
@@ -243,11 +243,19 @@ struct FeaturesView: View {
                         }
                         
                         // Technical explanation
-                        HStack(spacing: 4) {
-                            Image(systemName: "keyboard")
-                                .font(.caption)
-                            Text("Keyboard-aware: Tîpên nêzîk hev dizane")
-                                .font(.caption)
+                        VStack(spacing: 6) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "book.fill")
+                                    .font(.caption)
+                                Text("62,653 peyvên Kurmancî")
+                                    .font(.caption)
+                            }
+                            HStack(spacing: 4) {
+                                Image(systemName: "keyboard")
+                                    .font(.caption)
+                                Text("Keyboard-aware: Tîpên nêzîk hev dizane")
+                                    .font(.caption)
+                            }
                         }
                         .foregroundColor(.gray)
                     }
